@@ -3,11 +3,11 @@
 //export * from "@/db/schema/lms/lmsNavLinks";
 //export * from "@/db/schema/contact/contactNavLinks";
 
-//export * from "@/db/schema/user/user";
+export * from "@/db/schema/user/user";
 //export * from "@/db/schema/user/passwordResetTokens";
-//export * from "@/db/schema/user/session";
-//export * from "@/db/schema/user/account";
-//export * from "@/db/schema/user/verificationToken";
+export * from "@/db/schema/user/session";
+export * from "@/db/schema/user/account";
+export * from "@/db/schema/user/verificationToken";
 
 export * from "@/db/schema/shop/product";
 

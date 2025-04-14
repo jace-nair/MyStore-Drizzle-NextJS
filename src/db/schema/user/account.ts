@@ -1,21 +1,20 @@
-/*
 import {
-	integer,
-    text,
-    primaryKey,
-    serial,
-	pgTable,
+  integer,
+  text,
+  primaryKey,
+  timestamp,
+  pgTable,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 import type { AdapterAccountType } from "next-auth/adapters";
 
 import { user } from "@/db/schema";
 
-
-export const accounts = pgTable(
+export const account = pgTable(
   "account",
   {
-    userId: serial("userId")
+    userId: uuid("userId")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     type: text("type").$type<AdapterAccountType>().notNull(),
@@ -28,6 +27,12 @@ export const accounts = pgTable(
     scope: text("scope"),
     id_token: text("id_token"),
     session_state: text("session_state"),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "string" })
+      .notNull()
+      .defaultNow(),
   },
   (account) => [
     {
@@ -36,5 +41,4 @@ export const accounts = pgTable(
       }),
     },
   ]
-)
-  */
+);
