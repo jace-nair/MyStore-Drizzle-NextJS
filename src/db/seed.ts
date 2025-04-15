@@ -11,7 +11,7 @@ async function resetTable(db: DB, table: Table) {
 async function main() {
   for (const table of [
     //schema.category,
-    //schema.user,
+    schema.user,
     //schema.tag,
     //schema.post,
     //schema.postTags,
@@ -25,7 +25,7 @@ async function main() {
     await resetTable(db, table);
   }
   //await seeds.category(db);
-  //await seeds.user(db);
+  await seeds.user(db);
   //await seeds.tag(db);
   //await seeds.post(db);
   //await seeds.postTags(db);
