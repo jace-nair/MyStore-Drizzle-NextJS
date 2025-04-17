@@ -1,8 +1,19 @@
 import { z } from "zod";
-import { insertProductSchema } from "@/lib/validators";
+//import { cart } from "@/db/schema";
+//import { InferSelectModel } from "drizzle-orm";
+import {
+  insertProductSchema,
+  insertCartSchema,
+  cartItemSchema,
+} from "@/lib/validators";
 
 export type Product = z.infer<typeof insertProductSchema> & {
   id: string;
   rating: string;
   createdAt: Date;
 };
+
+export type Cart = z.infer<typeof insertCartSchema>;
+//export type Cart = InferSelectModel<typeof cart>;
+
+export type CartItem = z.infer<typeof cartItemSchema>;

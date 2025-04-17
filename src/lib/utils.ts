@@ -31,3 +31,16 @@ export function formatError(error: any) {
       : JSON.stringify(error.message);
   }
 }
+
+// Round number to 2 decimal places
+export function round2(value: number | string) {
+  if (typeof value === "number") {
+    // round to the nearest two decimal places
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  } else if (typeof value === "string") {
+    // cast it as a number and round to the nearest two decimal places
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+  } else {
+    throw new Error("Value is not a number or string");
+  }
+}

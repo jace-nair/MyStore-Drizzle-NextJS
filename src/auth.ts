@@ -1,9 +1,9 @@
 import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
-import type { NextAuthConfig } from "next-auth";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -13,7 +13,7 @@ export const config = {
     error: "/sign-in",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   adapter: DrizzleAdapter(db),
@@ -69,7 +69,7 @@ export const config = {
       session.user.name = token.name;
 
       // Check the token data in the console
-      console.log(token);
+      //console.log(token);
 
       // If there is an update, set the user name
       if (trigger === "update") {
@@ -99,7 +99,8 @@ export const config = {
       }
       return token;
     },
+    ...authConfig.callbacks,
   },
-} satisfies NextAuthConfig;
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
