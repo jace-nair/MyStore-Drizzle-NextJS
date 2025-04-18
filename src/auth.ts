@@ -4,8 +4,9 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
-import { user } from "@/db/schema";
+import { user, cart } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
 
 export const config = {
   pages: {
@@ -79,9 +80,10 @@ export const config = {
       return session;
     },
     /* eslint-disable  @typescript-eslint/no-explicit-any */
-    async jwt({ token, user }: any) {
+    async jwt({ token, user, trigger }: any) {
       // Assign user field to token
       if (user) {
+        token.id = user.id;
         token.role = user.role;
 
         // If the user has no name then use the first part of the email. This is mainly for accounts.
@@ -95,6 +97,32 @@ export const config = {
               name: token.name,
             })
             .where(eq(user.id, user.id));
+        }
+
+        // Only run this when the trigger is signIn or signUp
+        // Persists the shopping cart items when user logs in
+        if (trigger === "signIn" || trigger === "signUp") {
+          // Get sessionCartId from the cookie
+          const cookiesObject = await cookies();
+          const sessionCartId = cookiesObject.get("sessionCartId")?.value;
+
+          if (sessionCartId) {
+            //Get it from database
+            const sessionCart = await db.query.cart.findFirst({
+              where: eq(cart.sessionCartId, sessionCartId),
+            });
+
+            //If sessionCart, then delete the user database cart and assign new cart.
+            if (sessionCart) {
+              // Delete user database cart
+              await db.delete(cart).where(eq(cart.userId, user.id));
+              // Assign a new cart
+              await db
+                .update(cart)
+                .set({ userId: user.id })
+                .where(eq(cart.id, sessionCart.id));
+            }
+          }
         }
       }
       return token;
