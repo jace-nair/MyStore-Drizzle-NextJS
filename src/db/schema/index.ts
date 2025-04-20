@@ -11,6 +11,8 @@ export * from "@/db/schema/user/verificationToken";
 
 export * from "@/db/schema/shop/product";
 export * from "@/db/schema/shop/cart";
+export * from "@/db/schema/shop/order";
+export * from "@/db/schema/shop/orderItem";
 
 //export * from "@/db/schema/blog/category";
 //export * from "@/db/schema/blog/post";

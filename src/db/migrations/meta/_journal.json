@@ -22,6 +22,13 @@
       "when": 1744786847715,
       "tag": "0002_dusty_shinko_yamashiro",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745055407528,
+      "tag": "0003_fair_ares",
+      "breakpoints": true
     }
   ]
 }

@@ -4,6 +4,7 @@ import {
   shippingAddressSchema,
   signInFormSchema,
   signUpFormSchema,
+  paymentMethodSchema,
 } from "../validators";
 import { auth, signIn, signOut } from "@/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -13,6 +14,7 @@ import { user } from "@/db/schema";
 import { formatError } from "../utils";
 import { ShippingAddress } from "@/types";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 //import { revalidatePath } from "next/cache";
 
 // Sign in the user with credentials
@@ -118,6 +120,31 @@ export async function updateUserAddress(data: ShippingAddress) {
 
     const address = shippingAddressSchema.parse(data);
     await db.update(user).set({ address }).where(eq(user.id, currentUser.id));
+    //revalidatePath("/place-order");
+    return {
+      success: true,
+      message: "User updated successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+
+// Update user's payment method
+export async function updateUserPaymentMethod(
+  data: z.infer<typeof paymentMethodSchema>
+) {
+  try {
+    const session = await auth();
+    const currentUser = await db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.id, session?.user?.id!),
+    });
+    if (!currentUser) throw new Error("User not found");
+    const paymentMethod = paymentMethodSchema.parse(data);
+    await db
+      .update(user)
+      .set({ paymentMethod: paymentMethod.type })
+      .where(eq(user.id, currentUser.id));
     //revalidatePath("/place-order");
     return {
       success: true,

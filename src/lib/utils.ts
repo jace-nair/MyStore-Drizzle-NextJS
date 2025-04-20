@@ -62,3 +62,62 @@ export function formatCurrency(amount: number | string | null) {
     return "NaN";
   }
 }
+
+// Shorten the UUID for the URL and only show last six digits/characters.
+export function formatId(id: string) {
+  return `..${id.substring(id.length - 6)}`;
+}
+/*
+//TEST gives 62ed0b
+console.log(formatId("0d5abbc0-f969-42d4-a82f-69d65162ed0b"));
+*/
+
+// Format data and times
+export const formatDateTime = (dateString: Date) => {
+  const dateTimeOptions: Intl.DateTimeFormatOptions = {
+    month: "short", // abbreviated month name (e.g., 'Oct')
+    year: "numeric", // abbreviated month name (e.g., 'Oct')
+    day: "numeric", // numeric day of the month (e.g., '25')
+    hour: "numeric", // numeric hour (e.g., '8')
+    minute: "numeric", // numeric minute (e.g., '30')
+    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+  };
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    weekday: "short", // abbreviated weekday name (e.g., 'Mon')
+    month: "short", // abbreviated month name (e.g., 'Oct')
+    year: "numeric", // numeric year (e.g., '2023')
+    day: "numeric", // numeric day of the month (e.g., '25')
+  };
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: "numeric", // numeric hour (e.g., '8')
+    minute: "numeric", // numeric minute (e.g., '30')
+    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+  };
+  const formattedDateTime: string = new Date(dateString).toLocaleString(
+    "en-US",
+    dateTimeOptions
+  );
+  const formattedDate: string = new Date(dateString).toLocaleString(
+    "en-US",
+    dateOptions
+  );
+  const formattedTime: string = new Date(dateString).toLocaleString(
+    "en-US",
+    timeOptions
+  );
+  return {
+    dateTime: formattedDateTime,
+    dateOnly: formattedDate,
+    timeOnly: formattedTime,
+  };
+};
+
+/*
+// TEST
+const testDate = new Date("2023-10-25T08:30:00Z");
+const formatted = formatDateTime(testDate);
+// LOG TEST RESULTS
+console.log("Full DateTime:", formatted.dateTime);
+console.log("Date Only:", formatted.dateOnly);
+console.log("Time Only:", formatted.timeOnly);
+*/
