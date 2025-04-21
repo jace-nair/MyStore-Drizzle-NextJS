@@ -19,7 +19,12 @@ const OrderDetailsPage = async (props: Props) => {
     notFound();
   }
 
-  return <OrderDetailsTable order={dbOrder} />;
+  return (
+    <OrderDetailsTable
+      order={dbOrder}
+      paypalClientId={process.env.PAYPAL_CLIENT_ID || "sb"}
+    />
+  );
 };
 
 export default OrderDetailsPage;
