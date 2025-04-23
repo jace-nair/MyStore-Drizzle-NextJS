@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import qs from "query-string";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -121,3 +122,30 @@ console.log("Full DateTime:", formatted.dateTime);
 console.log("Date Only:", formatted.dateOnly);
 console.log("Time Only:", formatted.timeOnly);
 */
+
+// Form or build or put together the url query for pagination links: Previous and Next by using query-string NPM package.
+export function formUrlQuery({
+  params,
+  key,
+  value,
+}: {
+  params: string;
+  key: string;
+  value: string | null;
+}) {
+  const query = qs.parse(params);
+
+  // set the key to the correct page value to go to
+  query[key] = value;
+
+  // Stringify the above in to a URL and return it
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query,
+    },
+    {
+      skipNull: true,
+    }
+  );
+}

@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, desc, count } from "drizzle-orm";
 import { order, orderItem, cart, product } from "@/db/schema";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
@@ -12,6 +12,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { PaymentResult } from "@/types";
 import { paypal } from "../paypal";
 import { revalidatePath } from "next/cache";
+import { PAGE_SIZE } from "../constants";
 
 export const createOrder = async () => {
   try {
@@ -271,4 +272,34 @@ export async function deliverOrder(orderId: string) {
   } catch (err) {
     return { success: false, message: formatError(err) };
   }
+}
+
+// Get user's orders
+export async function getMyOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const session = await auth();
+  if (!session) throw new Error("User is not authenticated");
+
+  const data = await db.query.order.findMany({
+    /* eslint-disable  @typescript-eslint/no-non-null-asserted-optional-chain */
+    where: eq(order.userId, session?.user?.id!),
+    orderBy: [desc(product.createdAt)],
+    limit,
+    offset: (page - 1) * limit,
+  });
+  const dataCount = await db
+    .select({ count: count() })
+    .from(order)
+    /* eslint-disable  @typescript-eslint/no-non-null-asserted-optional-chain */
+    .where(eq(order.userId, session?.user?.id!));
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount[0].count / limit),
+  };
 }

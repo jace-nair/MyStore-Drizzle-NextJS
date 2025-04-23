@@ -154,3 +154,30 @@ export async function updateUserPaymentMethod(
     return { success: false, message: formatError(error) };
   }
 }
+
+//Update the user profile
+export async function updateProfile(userObject: {
+  name: string;
+  email: string;
+}) {
+  try {
+    const session = await auth();
+    const currentUser = await db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.id, session?.user?.id!),
+    });
+    if (!currentUser) throw new Error("User not found");
+    await db
+      .update(user)
+      .set({
+        name: userObject.name,
+      })
+      .where(eq(user.id, currentUser.id));
+
+    return {
+      success: true,
+      message: "User updated successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
