@@ -2,8 +2,8 @@
 
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { eq, sql, desc, count } from "drizzle-orm";
-import { order, orderItem, cart, product } from "@/db/schema";
+import { eq, sql, desc, count, sum } from "drizzle-orm";
+import { order, orderItem, cart, product, user } from "@/db/schema";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
 import { insertOrderSchema } from "../validators";
@@ -240,7 +240,7 @@ export const updateOrderToPaid = async ({
   //await sendPurchaseReceipt({ order: updatedOrder });
 };
 
-// Cash on delivery
+// Cash on delivery - Update COD order to paid
 export async function updateOrderToPaidByCOD(orderId: string) {
   try {
     await updateOrderToPaid({ orderId });
@@ -251,7 +251,7 @@ export async function updateOrderToPaidByCOD(orderId: string) {
   }
 }
 
-// Deliver Order
+// Deliver Order - Update COD order to delivered
 export async function deliverOrder(orderId: string) {
   try {
     const dbOrder = await db.query.order.findFirst({
@@ -302,4 +302,90 @@ export async function getMyOrders({
     data,
     totalPages: Math.ceil(dataCount[0].count / limit),
   };
+}
+
+// Define the types for salesData
+/* eslint-disable @typescript-eslint/no-unused-vars */
+type SalesDataType = {
+  month: string;
+  totalSales: number;
+}[];
+
+// Get sales data and order summary
+export async function getOrderSummary() {
+  // Get counts for each resource
+  const ordersCount = await db.select({ count: count() }).from(order);
+  const productsCount = await db.select({ count: count() }).from(product);
+  const usersCount = await db.select({ count: count() }).from(user);
+
+  // Calculate the total sales or orders
+  // Take the totalPrice field in the order table and add them all together or sum it up
+  const totalSales = await db
+    .select({ sum: sum(order.totalPrice) })
+    .from(order);
+
+  // Get monthly sales and group it by the month and the year.
+  // createdAt as an alias for month in MM/YY format
+  // sum of the totalPrice as an alias for totalSales
+  // The return for totalSales will be in the format of Drizzle decimal, so map through it and convert it to a number.
+  const salesData = await db
+    .select({
+      month: sql<string>`to_char(${order.createdAt},'MM/YY')`,
+      totalSales: sql<number>`sum(${order.totalPrice})`.mapWith(Number),
+    })
+    .from(order)
+    .groupBy(sql`1`);
+
+  // Get latest sales or orders
+  const latestSales = await db.query.order.findMany({
+    orderBy: [desc(order.createdAt)],
+    with: {
+      user: { columns: { name: true } },
+    },
+    limit: 6,
+  });
+  return {
+    ordersCount,
+    productsCount,
+    usersCount,
+    totalSales,
+    salesData,
+    latestSales,
+  };
+}
+
+// Get all orders
+export async function getAllOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const data = await db.query.order.findMany({
+    orderBy: [desc(product.createdAt)],
+    limit,
+    offset: (page - 1) * limit,
+    with: { user: { columns: { name: true } } },
+  });
+  const dataCount = await db.select({ count: count() }).from(order);
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount[0].count / limit),
+  };
+}
+
+// Delete an order
+export async function deleteOrder(id: string) {
+  try {
+    await db.delete(order).where(eq(order.id, id));
+    revalidatePath("/admin/orders");
+    return {
+      success: true,
+      message: "Order deleted successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
 }

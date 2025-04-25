@@ -64,6 +64,14 @@ export function formatCurrency(amount: number | string | null) {
   }
 }
 
+// Format Number to use english-US locale
+// Used in admin/overview dashboard to format and display sales count, customers count and products count
+const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
+
+export function formatNumber(number: number) {
+  return NUMBER_FORMATTER.format(number);
+}
+
 // Shorten the UUID for the URL and only show last six digits/characters.
 export function formatId(id: string) {
   return `..${id.substring(id.length - 6)}`;
