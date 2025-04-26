@@ -256,3 +256,13 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Uploadthing button text override */
+/*For dark mode*/
+html.dark .upload-field .text-white {
+  color: #ffffff !important;
+}
+/*For light mode*/
+.upload-field .text-white {
+  color: #000 !important;
+}
