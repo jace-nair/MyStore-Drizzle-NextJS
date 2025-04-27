@@ -5,6 +5,7 @@ import {
   signInFormSchema,
   signUpFormSchema,
   paymentMethodSchema,
+  updateUserSchema,
 } from "../validators";
 import { auth, signIn, signOut } from "@/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -13,8 +14,10 @@ import { db } from "@/db";
 import { user } from "@/db/schema";
 import { formatError } from "../utils";
 import { ShippingAddress } from "@/types";
-import { eq } from "drizzle-orm";
+import { eq, desc, count, and, ilike } from "drizzle-orm";
 import { z } from "zod";
+import { PAGE_SIZE } from "../constants";
+import { revalidatePath } from "next/cache";
 //import { revalidatePath } from "next/cache";
 
 // Sign in the user with credentials
@@ -173,6 +176,98 @@ export async function updateProfile(userObject: {
       })
       .where(eq(user.id, currentUser.id));
 
+    return {
+      success: true,
+      message: "User updated successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+
+/*
+// Get all users - Old
+export async function getAllUsers({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const data = await db.query.user.findMany({
+    orderBy: [desc(user.createdAt)],
+    limit,
+    offset: (page - 1) * limit,
+  });
+  const dataCount = await db.select({ count: count() }).from(user);
+  return {
+    data,
+    totalPages: Math.ceil(dataCount[0].count / limit),
+  };
+}
+*/
+
+// Get all users
+export async function getAllUsers({
+  limit = PAGE_SIZE,
+  page,
+  query,
+}: {
+  limit?: number;
+  page: number;
+  query: string;
+}) {
+  const queryFilter =
+    query && query !== "all" ? ilike(user.name, `%${query}%`) : undefined;
+
+  const data = await db
+    .select()
+    .from(user)
+    //.leftJoin(user, eq(order.userId, user.id))
+    .where(queryFilter ? and(queryFilter) : undefined)
+    .orderBy(desc(user.createdAt))
+    .offset((page - 1) * limit)
+    .limit(limit);
+
+  const dataCount = await db
+    .select({ count: count() })
+    .from(user)
+    //.leftJoin(user, eq(order.userId, user.id))
+    .where(queryFilter ? and(queryFilter) : undefined);
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCount[0].count / limit),
+  };
+}
+
+// Delete a user
+export async function deleteUser(id: string) {
+  try {
+    await db.delete(user).where(eq(user.id, id));
+    revalidatePath("/admin/users");
+    return {
+      success: true,
+      message: "User deleted successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+
+// Update a user
+export async function updateUser(
+  userToUpdate: z.infer<typeof updateUserSchema>
+) {
+  try {
+    await db
+      .update(user)
+      .set({
+        name: userToUpdate.name,
+        role: userToUpdate.role,
+      })
+      .where(eq(user.id, userToUpdate.id));
+    revalidatePath("/admin/users");
     return {
       success: true,
       message: "User updated successfully",

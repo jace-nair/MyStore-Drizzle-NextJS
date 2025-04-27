@@ -29,6 +29,13 @@
       "when": 1745055407528,
       "tag": "0003_fair_ares",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1745701594213,
+      "tag": "0004_neat_junta",
+      "breakpoints": true
     }
   ]
 }

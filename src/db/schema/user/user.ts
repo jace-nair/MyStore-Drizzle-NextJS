@@ -30,7 +30,8 @@ export const user = pgTable(
     emailVerified: timestamp("createdAt", { precision: 6 }),
     image: text("image"),
     password: varchar("password", { length: 255 }).notNull(),
-    role: userRoleEnum("role").notNull().default("user"),
+    //role: userRoleEnum("role").notNull().default("user"),
+    role: text("role").notNull().default("user"),
     address: json("address"),
     paymentMethod: text("payment_method"),
     createdAt: timestamp("created_at", { mode: "string" })

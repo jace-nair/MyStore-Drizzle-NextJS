@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { eq, sql, desc, count, sum } from "drizzle-orm";
+import { eq, sql, desc, count, sum, ilike, and } from "drizzle-orm";
 import { order, orderItem, cart, product, user } from "@/db/schema";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
@@ -358,17 +358,38 @@ export async function getOrderSummary() {
 export async function getAllOrders({
   limit = PAGE_SIZE,
   page,
+  query,
 }: {
   limit?: number;
   page: number;
+  query: string;
 }) {
-  const data = await db.query.order.findMany({
-    orderBy: [desc(product.createdAt)],
-    limit,
-    offset: (page - 1) * limit,
-    with: { user: { columns: { name: true } } },
-  });
-  const dataCount = await db.select({ count: count() }).from(order);
+  const queryFilter =
+    query && query !== "all" ? ilike(user.name, `%${query}%`) : undefined;
+
+  const data = await db
+    .select({
+      id: order.id,
+      createdAt: order.createdAt,
+      userName: user.name,
+      totalPrice: order.totalPrice,
+      paidAt: order.paidAt,
+      isPaid: order.isPaid,
+      isDelivered: order.isDelivered,
+      deliveredAt: order.deliveredAt,
+    })
+    .from(order)
+    .leftJoin(user, eq(order.userId, user.id))
+    .where(queryFilter ? and(queryFilter) : undefined)
+    .orderBy(desc(order.createdAt))
+    .offset((page - 1) * limit)
+    .limit(limit);
+
+  const dataCount = await db
+    .select({ count: count() })
+    .from(order)
+    .leftJoin(user, eq(order.userId, user.id))
+    .where(queryFilter ? and(queryFilter) : undefined);
 
   return {
     data,
