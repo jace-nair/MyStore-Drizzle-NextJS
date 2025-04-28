@@ -149,3 +149,37 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema>) {
     return { success: false, message: formatError(error) };
   }
 }
+
+/*
+//Get all categories - old
+export async function getAllCategories() {
+  const data = await db
+    .selectDistinctOn([product.category], { name: product.category })
+    .from(product)
+    .orderBy(product.category);
+  return data;
+}
+*/
+
+// Get all categories with count
+export async function getAllCategories() {
+  const data = await db
+    .select({
+      category: product.category,
+      _count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(product)
+    .groupBy(product.category);
+
+  return data;
+}
+
+// Get featured products
+export async function getFeaturedProducts() {
+  const data = await db.query.product.findMany({
+    where: eq(product.isFeatured, true),
+    orderBy: [desc(product.createdAt)],
+    limit: 4,
+  });
+  return data;
+}
