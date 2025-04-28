@@ -12,6 +12,8 @@ import {
   boolean,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { review } from "@/db/schema";
 //import { post } from "@/db/schema"
 
 //import { createInsertSchema } from "drizzle-zod";
@@ -45,3 +47,8 @@ export const user = pgTable(
   },
   (table) => [uniqueIndex("user_email_idx").on(table.email)]
 );
+
+// Schema Relations
+export const userRelations = relations(user, ({ many }) => ({
+  review: many(review),
+}));

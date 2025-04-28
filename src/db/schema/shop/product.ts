@@ -9,7 +9,8 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-
+import { relations } from "drizzle-orm";
+import { review } from "@/db/schema";
 // Schema Table
 export const product = pgTable(
   "product",
@@ -35,6 +36,9 @@ export const product = pgTable(
 );
 
 // Schema Relations
+export const productRelations = relations(product, ({ many }) => ({
+  review: many(review),
+}));
 
 // Schema Type
 export type ProductModelType = InferSelectModel<typeof product>;
