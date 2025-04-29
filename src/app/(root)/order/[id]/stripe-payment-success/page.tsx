@@ -12,29 +12,32 @@ type Props = {
     id: string;
   }>;
   searchParams: Promise<{
-    payment_intent_id: string;
+    payment_intent: string;
   }>;
 };
 
-const SuccessPage = async ({ params, searchParams }: Props) => {
+const SuccessPage = async (props: Props) => {
   // Destructure
-  const { id } = await params;
+  const { id } = await props.params;
   // paymentIntentId is alias for payment_intent_id
-  const { payment_intent_id: paymentIntentId } = await searchParams;
+  const { payment_intent: paymentIntentId } = await props.searchParams;
 
-  //TEST
-  console.log("id:", id);
-  console.log("paymentIntendId:", paymentIntentId);
-
-  if (!paymentIntentId) {
+  /*if (!paymentIntentId) {
     throw new Error("Missing payment intent ID");
-  }
+  }*/
+
+  /*if (!paymentIntentId) {
+    return redirect(`/order/${id}`);
+  }*/
 
   // Fetch order
   const dbOrder = await getOrderById(id);
   if (!dbOrder) {
     notFound();
   }
+
+  //TEST
+  console.log(`paymentIntentId is:${paymentIntentId}`);
 
   // Retrieve payment intent using the payment_intent_id value
   const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);

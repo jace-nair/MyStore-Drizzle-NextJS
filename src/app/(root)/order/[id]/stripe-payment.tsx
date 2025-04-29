@@ -18,12 +18,12 @@ type Props = {
   clientSecret: string;
 };
 
-const StripePayment = ({ priceInCents, orderId, clientSecret }: Props) => {
-  // Create Stripe Promise
-  const stripePromise = loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
-  );
+// Create Stripe Promise
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
+);
 
+const StripePayment = ({ priceInCents, orderId, clientSecret }: Props) => {
   // Get the theme the website is using. Use useTheme() hook form next-themes
   const { theme, systemTheme } = useTheme();
 
@@ -53,6 +53,7 @@ const StripePayment = ({ priceInCents, orderId, clientSecret }: Props) => {
           elements,
           confirmParams: {
             return_url: `${SERVER_URL}/order/${orderId}/stripe-payment-success`,
+            //return_url: `${SERVER_URL}/order/${orderId}/success?payment_intent_id={PAYMENT_INTENT_ID}`,
           },
         })
         .then(({ error }) => {
@@ -95,27 +96,34 @@ const StripePayment = ({ priceInCents, orderId, clientSecret }: Props) => {
     );
   };
 
-  // Use Elements to wrap the return
-  return (
-    <Elements
-      options={{
-        clientSecret,
-        appearance: {
-          theme:
-            theme === "dark"
-              ? "night"
-              : theme === "light"
-              ? "stripe"
-              : systemTheme === "light"
-              ? "stripe"
-              : "night",
-        },
-      }}
-      stripe={stripePromise}
-    >
-      <StripeForm />
-    </Elements>
-  );
+  //TEST
+  console.log("Stripe client secret:", clientSecret);
+
+  if (!clientSecret) {
+    return <div>Loading payment details...</div>;
+  } else {
+    // Use Elements to wrap the return
+    return (
+      <Elements
+        options={{
+          clientSecret,
+          appearance: {
+            theme:
+              theme === "dark"
+                ? "night"
+                : theme === "light"
+                ? "stripe"
+                : systemTheme === "dark"
+                ? "night"
+                : "stripe",
+          },
+        }}
+        stripe={stripePromise}
+      >
+        <StripeForm />
+      </Elements>
+    );
+  }
 };
 
 export default StripePayment;

@@ -38,6 +38,14 @@ const OrderDetailsPage = async (props: Props) => {
       currency: "USD",
       metadata: { orderId: dbOrder.id },
     });
+
+    // Check client_secret is always defined before rendering the page.
+    if (!paymentIntent.client_secret) {
+      throw new Error(
+        "Failed to create PaymentIntent. No client_secret returned."
+      );
+    }
+
     // Value from the payment intent
     client_secret = paymentIntent.client_secret;
   }
