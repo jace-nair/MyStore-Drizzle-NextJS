@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import StripePayment from "./stripe-payment";
 
 type Props = {
-  order: Order;
+  order: Omit<Order, "paymentResult">;
   paypalClientId: string;
   isAdmin: boolean;
   stripeClientSecret: string | null;

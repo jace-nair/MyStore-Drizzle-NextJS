@@ -9,10 +9,11 @@ import { getUserById } from "./user.actions";
 import { insertOrderSchema } from "../validators";
 import { formatError } from "../utils";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { PaymentResult } from "@/types";
+import { PaymentResult, ShippingAddress } from "@/types";
 import { paypal } from "../paypal";
 import { revalidatePath } from "next/cache";
 import { PAGE_SIZE } from "../constants";
+import { sendPurchaseReceipt } from "@/email";
 
 export const createOrder = async () => {
   try {
@@ -190,7 +191,7 @@ export async function approvePayPalOrder(
   }
 }
 
-// Update Order to be paid
+// Update Order to paid
 export const updateOrderToPaid = async ({
   orderId,
   paymentResult,
@@ -238,6 +239,13 @@ export const updateOrderToPaid = async ({
     throw new Error("Order not found");
   }
   //await sendPurchaseReceipt({ order: updatedOrder });
+  await sendPurchaseReceipt({
+    order: {
+      ...updatedOrder,
+      shippingAddress: updatedOrder.shippingAddress as ShippingAddress,
+      paymentResult: updatedOrder.paymentResult as PaymentResult,
+    },
+  });
 };
 
 // Cash on delivery - Update COD order to paid
