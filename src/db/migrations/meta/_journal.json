@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1744480088428,
-      "tag": "0000_legal_rhino",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1744614672073,
-      "tag": "0001_dusty_donald_blake",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1744786847715,
-      "tag": "0002_dusty_shinko_yamashiro",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1745055407528,
-      "tag": "0003_fair_ares",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1745701594213,
-      "tag": "0004_neat_junta",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1745837260923,
-      "tag": "0005_greedy_giant_man",
+      "when": 1750481389286,
+      "tag": "0000_deep_giant_girl",
       "breakpoints": true
     }
   ]

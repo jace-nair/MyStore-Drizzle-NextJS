@@ -95,7 +95,7 @@ const DealCountdown = () => {
         </div>
         <div className="flex justify-center">
           <Image
-            src="/images/promo.jpg"
+            src="/images/promo.webp"
             alt="promotion"
             width={300}
             height={200}
@@ -129,7 +129,7 @@ const DealCountdown = () => {
       </div>
       <div className="flex justify-center">
         <Image
-          src="/images/promo.jpg"
+          src="/images/promo.webp"
           alt="promotion"
           width={300}
           height={200}
